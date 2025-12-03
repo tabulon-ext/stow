@@ -16,19 +16,18 @@
 # Build docker image: `docker build -t stowtest`
 # Run tests: (from stow src directory)
 #    `docker run --rm -it -v $(pwd):$(pwd) -w $(pwd) stowtest`
-FROM debian:jessie
-RUN printf "deb http://archive.debian.org/debian/ jessie main\ndeb-src http://archive.debian.org/debian/ jessie main\ndeb http://security.debian.org jessie/updates main\ndeb-src http://security.debian.org jessie/updates main" > /etc/apt/sources.list
+FROM debian:bookworm
+RUN DEBIAN_FRONTEND=noninteractive apt-get update -qq
 RUN DEBIAN_FRONTEND=noninteractive \
-apt-get update -qq && \
-apt-get install -y -q \
+apt-get install -y --force-yes -q \
     autoconf \
     bzip2 \
     cpanminus \
     gawk \
     git \
-	libssl-dev \
+    libssl-dev \
     make \
-	patch \
+    patch \
     perlbrew \
     texinfo \
     texlive \

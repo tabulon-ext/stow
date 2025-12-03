@@ -21,17 +21,16 @@ Release procedure
 
     version=$( tools/get-version ) && echo $version
 
-- Ensure NEWS contains the latest changes, and that any new
-  contributors have been added to THANKS.  If necessary, commit
+- Ensure NEWS contains the latest changes.  If necessary, commit
   any additions:
 
-    git commit -m "Prepare NEWS and THANKS for $version release"
+    git commit -m "Prepare NEWS for $version release"
 
 - Check CPAN distribution will work via Module::Build:
 
     - Start from a clean slate:
 
-        make distclean
+        make maintainer-clean
         autoreconf -iv
 
     - Generate stow, chkstow, and lib/Stow.pm via:
@@ -39,6 +38,7 @@ Release procedure
         eval `perl -V:siteprefix`
         automake --add-missing
         ./configure --prefix=$siteprefix && make
+        make pdf
 
       (N.B. the CPAN distribution will contain these files, whereas
       the GNU distribution will not.)
@@ -54,9 +54,10 @@ Release procedure
 
     - Check META.yml and META.json have the new version number.
       They already should if the final step of this document was
-      carried out after the previous release was publised, but
+      carried out after the previous release was published, but
       if not:
 
+        git add configure.ac META.{yml,json}
         git commit -m "Bump version to $version"
 
 - Ensure all changes are committed to git.
@@ -92,11 +93,20 @@ Release procedure
     git push github master
     git push --tags github
 
-- Upload the new release to ftp.gnu.org.  This is easiest using gnupload:
+- Upload the new release to ftp.gnu.org.  This is easiest using gnupload.
+  First ensure you have ncftp installed, since gnupload requires this.
+  Then do:
 
     - git clone git://git.savannah.gnu.org/gnulib.git
+
     - Copy gnulib/build-aux/gnupload to somewhere on your $PATH
-    - Run gnupload --to ftp.gnu.org:stow --symlink-regex stow-7.8.9.tar.*
+
+    - Run gnupload --dry-run --to ftp.gnu.org:stow --symlink-regex stow-7.8.9.tar.{gz,bz2}
+
+    - Check that everything looks good, then re-run without the --dry-run option.
+
+  See https://www.gnu.org/prep/maintain/html_node/Automated-Upload-Procedure.html
+  for more details on the upload procedure.
 
 - Regenerate the documentation for the website:
 
@@ -120,8 +130,14 @@ Release procedure
         stow "GNU Stow manual"
 
     cd $stow_web_repo
+    # Check for any added/removed files, then add/remove as necessary
+    cvs -nq update
+    cvs add ...
+    cvs remove ...
+
     # Check that the changes look OK
     cvs diff
+
     # Then commit
     cvs commit -m "Update manual to v$version"
 
@@ -160,7 +176,7 @@ Release procedure
         version=$( tools/get-version ) && echo $version
 
     - In order to update META.yml and META.json, repeat the same
-      procedure listed above, starting at "make distclean" and
+      procedure listed above, starting at "make maintainer-clean" and
       finishing after "./Build distmeta".
 
     - Check META.yml and META.json now have the new versions.

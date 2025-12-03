@@ -83,7 +83,21 @@
 ^doc/HOWTO-RELEASE$
 
 # Avoid test files
-tmp-testing-trees
-.travis.yml
+tmp-testing-trees*
+^.coveralls.yml
+^.github/workflows/
+^.travis.yml
 ^docker/
 ^[a-zA-Z]*-docker.sh
+^playground/
+
+# Avoid development config
+^\.editorconfig
+^.dir-locals.el
+^.dumbjump
+
+# Avoid AI agent config
+^AGENTS.md
+^CLAUDE.md
+^GEMINI.md
+^\.claude/
